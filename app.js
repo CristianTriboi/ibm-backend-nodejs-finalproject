@@ -36,6 +36,7 @@ function authenticateJWT(req, res, next) {
         // Continue to the next middleware
         next();
     }
+    
     catch (error) {
         // If invalid token, return 401
         return res.status(401).json({ message: 'Invalid token' });
@@ -84,6 +85,7 @@ app.post('/register', async (req, res) => {
         // Respond with success message
         res.send({"message":`The user ${username} has been added`});
     }
+
     catch (error) {
         console.error(error);
         // Handle server errors
@@ -91,7 +93,28 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// Insert your user login code here.
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    
+    try {
+        // Check if the user exists with the provided credentials
+        const user = await User.findOne({ username, password });
+        if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+    
+        // Generate JWT token and store in session
+        const token = jwt.sign({ userId: user._id, username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+        req.session.token = token;
+    
+        // Respond with a success message
+        res.send({"message":`${user.username} has logged in`});
+    }
+
+    catch (error) {
+        console.error(error);
+        // Handle server errors
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // Insert your post creation code here.
 
