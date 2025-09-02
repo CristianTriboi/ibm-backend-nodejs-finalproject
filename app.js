@@ -187,6 +187,11 @@ app.delete('/posts/:postId', authenticateJWT, async (req, res) => {
     }
 });
 
-// Insert your user logout code here.
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) console.error(err); // Log any session destruction errors
+    res.redirect('/login'); // Redirect to login page after logout
+  });
+});
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
