@@ -10,7 +10,7 @@ const SECRET_KEY = 'your_secret_key';
 
 mongoose.set('strictQuery', false);
 
-const uri =  "mongodb://root:<replace password>@localhost:27017";
+const uri =  "mongodb://mongodb:27017";
 mongoose.connect(uri,{'dbName':'SocialDB'});
 
 const User = mongoose.model('User', { username: String, email: String, password: String });
@@ -83,7 +83,7 @@ app.post('/register', async (req, res) => {
         req.session.token = token;
         
         // Respond with success message
-        res.send({"message":`The user ${username} has been added`});
+        res.redirect(`/index?username=${newUser.username}`);
     }
 
     catch (error) {
@@ -106,7 +106,7 @@ app.post('/login', async (req, res) => {
         req.session.token = token;
     
         // Respond with a success message
-        res.send({"message":`${user.username} has logged in`});
+        res.redirect(`/index?username=${user.username}`);
     }
 
     catch (error) {
