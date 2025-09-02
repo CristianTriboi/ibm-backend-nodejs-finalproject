@@ -22,38 +22,45 @@ app.use(session({ secret: SECRET_KEY, resave: false, saveUninitialized: true, co
 
 
 function authenticateJWT(req, res, next) {
-  // Get token from session
-  const token = req.session.token;
-  // If no token, return 401 Unauthorized
-  if (!token) return res.status(401).json({ message: 'Unauthorized' });
-  try {
-    // Verify token
-    const decoded = jwt.verify(token, SECRET_KEY);
+    // Get token from session
+    const token = req.session.token;
+    // If no token, return 401 Unauthorized
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+    try {
+        // Verify token
+        const decoded = jwt.verify(token, SECRET_KEY);
     
-    // Attach user data to request
-    req.user = decoded;
+        // Attach user data to request
+        req.user = decoded;
     
-    // Continue to the next middleware
-    next();
-  } catch (error) {
-    // If invalid token, return 401
-    return res.status(401).json({ message: 'Invalid token' });
-  }
+        // Continue to the next middleware
+        next();
+    }
+    catch (error) {
+        // If invalid token, return 401
+        return res.status(401).json({ message: 'Invalid token' });
+    }
 }
 
 function requireAuth(req, res, next) {
-  const token = req.session.token;  // Retrieve token from session
-  if (!token) return res.redirect('/login');  // If no token, redirect to login page
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);  // Verify the token using the secret key
-    req.user = decoded;  // Attach decoded user data to the request
-    next();  // Pass control to the next middleware/route
-  } catch (error) {
-    return res.redirect('/login');  // If token is invalid, redirect to login page
-  }
+    const token = req.session.token;  // Retrieve token from session
+  
+    if (!token) return res.redirect('/login');  // If no token, redirect to login page
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);  // Verify the token using the secret key
+        req.user = decoded;  // Attach decoded user data to the request
+        next();  // Pass control to the next middleware/route
+    }
+    catch (error) {
+        return res.redirect('/login');  // If token is invalid, redirect to login page
+    }
 }
 
-// Insert your routing HTML code here.
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/post', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'post.html')));
+app.get('/index', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'), { username: req.user.username }));
 
 // Insert your user registration code here.
 
